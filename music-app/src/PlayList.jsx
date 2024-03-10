@@ -1,7 +1,7 @@
 import React from "react";
 import './App.css'
 import './index.css'
-import { PencilIcon, PlayCircleIcon } from "@heroicons/react/24/solid";
+import { PlayCircleIcon } from "@heroicons/react/24/solid";
 import {
   ArrowDownTrayIcon,
   MagnifyingGlassIcon,
@@ -12,13 +12,12 @@ import {
   Typography,
   Button,
   CardBody,
-  Chip,
   CardFooter,
-  Avatar,
   IconButton,
   Tooltip,
   Input,
 } from "@material-tailwind/react";
+import DownloadButton from "./DownloadButton";
 
 const Playlist = ( ) => {
   const tableHead = [
@@ -133,13 +132,7 @@ const Playlist = ( ) => {
           <tbody>
             {staticData.map(
               (
-                {
-                  title,
-                  artist,
-                  album,
-                  duration
-                  
-                },
+                item,
                 index,
               ) => {
                 const isLast = index === staticData.length - 1;
@@ -148,7 +141,7 @@ const Playlist = ( ) => {
                   : "p-4 border-b border-blue-gray-50";
  
                 return (
-                  <tr key={name}>
+                  <tr key={item.id}>
                     <td className={classes}>
                       <div className="flex items-center gap-3">
                       <Tooltip content="Play Now">
@@ -172,7 +165,7 @@ const Playlist = ( ) => {
                           color="blue-gray"
                           className="font-bold"
                         >
-                          {title}
+                          {item.title}
                         </Typography>
                       </div>
                     </td>
@@ -182,7 +175,7 @@ const Playlist = ( ) => {
                         color="blue-gray"
                         className="font-normal"
                       >
-                        {artist}
+                        {item.artist}
                       </Typography>
                     </td>
                     <td className={classes}>
@@ -191,7 +184,7 @@ const Playlist = ( ) => {
                         color="blue-gray"
                         className="font-normal"
                       >
-                        {album}
+                        {item.album}
                       </Typography>
                     </td>
                     <td className={classes}>
@@ -200,7 +193,7 @@ const Playlist = ( ) => {
                         color="blue-gray"
                         className="font-normal"
                       >
-                        {duration}
+                        {item.duration}
                       </Typography>
                     </td>
                     {/* <td className={classes}>
@@ -221,11 +214,7 @@ const Playlist = ( ) => {
                     </td> */}
                     
                     <td className={classes}>
-                      <Tooltip content="Save to Spotify PlayList">
-                        <IconButton variant="text">
-                        <ArrowDownTrayIcon strokeWidth={2} className="h-4 w-4" />
-                        </IconButton>
-                      </Tooltip>
+                      <DownloadButton id={item.id} />
                     </td>
                   </tr>
                 );
