@@ -214,7 +214,7 @@ const Playlist = ( ) => {
                     </td> */}
                     
                     <td className={classes}>
-                      <DownloadButton id={item.id} />
+                      <DownloadButton id={item.id}  />
                     </td>
                   </tr>
                 );

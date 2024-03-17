@@ -51,6 +51,8 @@ function ProfileMenu() {
  
   const closeMenu = () => setIsMenuOpen(false);
  
+ 
+
   return (
     <Menu open={isMenuOpen} handler={setIsMenuOpen} placement="bottom-end">
       <MenuHandler>
@@ -107,12 +109,21 @@ function ProfileMenu() {
   );
 } 
  
+function LogingButton() {
+  return(
+    <>
+      <Button color="white" variant="outlined">Sigin</Button>
+    </>
+  )
+}
 
 export default function NavMenu() {
   const [isNavOpen, setIsNavOpen] = React.useState(false);
  
   const toggleIsNavOpen = () => setIsNavOpen((cur) => !cur);
- 
+  
+  const isLogin = false;
+
   React.useEffect(() => {
     window.addEventListener(
       "resize",
@@ -131,8 +142,7 @@ export default function NavMenu() {
          <img src="/src/assets/log-in-page-logo-transparent.png" className="rounded-md" style={{ width: '150px', height: '80px' }} />
         </Typography>
         
-        
-        <ProfileMenu />
+        {isLogin ? <ProfileMenu /> :   <LogingButton/>}
       </div>
       
     </Navbar>
