@@ -12,14 +12,14 @@ from spotipy.cache_handler import FlaskSessionCacheHandler
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(64)
 
-CLIENT_ID = 'b4e5e4bb045240f59e63c7ccd0611ea1'
-CLIENT_SECRET = 'b3d68e9d44ad4a56a6b2af201c5144a2'
+CLIENT_ID = 'b662abba80f941099b7ff7c6a11e23cb'
+CLIENT_SECRET = '5d3cf4646ee94850a1c0a67b3810a1a5'
 REDIRECT_URI = 'http://localhost:5000/callback'
 
 AUTH_URL = 'https://accounts.spotify.com/authorize'
 TOKEN_URL = 'https://accounts.spotify.com/api/token'
 API_BASE_URL = 'https://api.spotify.com/v1/'
-SCOPE = 'user-library-read playlist-modify-private'
+SCOPE = 'user-library-read playlist-read-private'
 
 cache_handler = FlaskSessionCacheHandler(session)
 sp_oauth = SpotifyOAuth(
@@ -38,14 +38,17 @@ def login():
         AUTH_URL = sp_oauth.get_authorize_url()
         session["token_info"] = sp_oauth.get_cached_token()
         return redirect(AUTH_URL)
-    return redirect(url_for('get_playlists'))
+    #return redirect(url_for('get_playlists'))
+    return jsonify({'redirect_url': 'http://localhost:5174/'})
 
 
 @app.route('/callback')
 def callback():
     token_info = sp_oauth.get_access_token(request.args['code'])
     session["token_info"] = token_info
-    return redirect(url_for('get_playlists'))
+    #return redirect(url_for('get_playlists'))
+    return jsonify({'redirect_url': 'http://localhost:5174/'})
+
     
 @app.route('/get_playlists')
 def get_playlists():
@@ -54,7 +57,7 @@ def get_playlists():
         return redirect(AUTH_URL)
     
     playlists = sp.current_user_playlists()
-    playlists_info = [(pl['name'], pl['external_urls']['spotify']) for pl in playlists['items']]
+    playlists_info = playlists_info = [(pl['name'], pl.get('external_urls', {}).get('spotify', '')) for pl in playlists['items']]
     playlists_html = '<br>'.join([f'{name}: {url}' for name, url in playlists_info])
     
     return playlists_html
