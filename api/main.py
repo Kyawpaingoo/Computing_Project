@@ -3,7 +3,7 @@ import requests
 import os
 
 from datetime import datetime, timedelta
-from flask import Flask, redirect, request, jsonify, session, url_for
+from flask import Flask, redirect, request, jsonify, session, url_for, render_template
 
 from spotipy import Spotify
 from spotipy.oauth2 import SpotifyOAuth
@@ -39,15 +39,16 @@ def login():
         session["token_info"] = sp_oauth.get_cached_token()
         return redirect(AUTH_URL)
     #return redirect(url_for('get_playlists'))
-    return jsonify({'redirect_url': 'http://localhost:5174/'})
+    #return jsonify({'redirect_url': 'http://localhost:5174/'})
+    return redirect('http://localhost:5173/playlist')
 
 
 @app.route('/callback')
 def callback():
     token_info = sp_oauth.get_access_token(request.args['code'])
     session["token_info"] = token_info
-    #return redirect(url_for('get_playlists'))
-    return jsonify({'redirect_url': 'http://localhost:5174/'})
+    return redirect(url_for('get_playlists'))
+   
 
     
 @app.route('/get_playlists')
@@ -81,7 +82,7 @@ def generate_playlists():
 @app.route('/logout')
 def logout():
     session.clear()
-    return redirect(url_for('login'))
+    return redirect('http://localhost:5173/:')
     
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)

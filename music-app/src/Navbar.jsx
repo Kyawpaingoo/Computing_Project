@@ -11,47 +11,40 @@ import {
   
 } from "@material-tailwind/react";
 import {
- 
-  UserCircleIcon,
-  
   ChevronDownIcon,
-  Cog6ToothIcon,
-  InboxArrowDownIcon,
-  LifebuoyIcon,
+  
   PowerIcon,
  
 } from "@heroicons/react/24/solid";
  
 // profile menu component
-const profileMenuItems = [
-  {
-    label: "My Profile",
-    icon: UserCircleIcon,
-  },
-  {
-    label: "Edit Profile",
-    icon: Cog6ToothIcon,
-  },
-  {
-    label: "Inbox",
-    icon: InboxArrowDownIcon,
-  },
-  {
-    label: "Help",
-    icon: LifebuoyIcon,
-  },
-  {
-    label: "Sign Out",
-    icon: PowerIcon,
-  },
-];
+// const profileMenuItems = [
+//   {
+//     label: "My Profile",
+//     icon: UserCircleIcon,
+//   },
+//   {
+//     label: "Edit Profile",
+//     icon: Cog6ToothIcon,
+//   },
+//   {
+//     label: "Inbox",
+//     icon: InboxArrowDownIcon,
+//   },
+//   {
+//     label: "Help",
+//     icon: LifebuoyIcon,
+//   },
+//   {
+//     label: "Sign Out",
+//     icon: PowerIcon,
+//   },
+// ];
  
-function ProfileMenu() {
+function ProfileMenu({logout}) {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
- 
-  const closeMenu = () => setIsMenuOpen(false);
- 
- 
+  
+ const logoutHandler = () => logout();
 
   return (
     <Menu open={isMenuOpen} handler={setIsMenuOpen} placement="bottom-end">
@@ -77,33 +70,30 @@ function ProfileMenu() {
         </Button>
       </MenuHandler>
       <MenuList className="p-1 shadow-none border-transparent bg-gray-900">
-        {profileMenuItems.map(({ label, icon }, key) => {
-          const isLastItem = key === profileMenuItems.length - 1;
+        
           return (
             <MenuItem
-              key={label}
-              onClick={closeMenu}
-              className={`flex items-center bg-gray-900 shadow-none border-transparent gap-2 rounded ${
-                isLastItem
-                  ? "hover:bg-red-500/10 focus:bg-red-500/10 active:bg-red-500/10"
-                  : ""
+              
+              onClick={logoutHandler}
+              className={`flex items-center bg-gray-900 shadow-none border-transparent gap-2 rounded hover:bg-red-500/10 focus:bg-red-500/10 active:bg-red-500/10"
+                  
               }`}
             >
-              {React.createElement(icon, {
-                className: `h-4 w-4 ${isLastItem ? "text-red-500" : ""}`,
+              {React.createElement(PowerIcon, {
+                className: `h-4 w-4 text-red-500"`,
                 strokeWidth: 2,
               })}
               <Typography
                 as="span"
                 variant="small"
                 className="font-normal"
-                color={isLastItem ? "red" : "inherit"}
+                color="red"
               >
-                {label}
+                Sign Out
               </Typography>
             </MenuItem>
           );
-        })}
+       
       </MenuList>
     </Menu>
   );
@@ -124,9 +114,23 @@ function LogingButton() {
     })
     .catch(error => console.log('Error:', error));
   }
+
+  const handleLogout = () =>{
+    fetch('http://localhost:5000/logout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then(response => {
+      response.ok && setLogin(false);
+    })
+    .catch(error => console.log('Error:', error));
+  
+  }
   return(
     <>
-      <a onClick={handleLogin} color="white" variant="outlined">Sigin</a>
+      {login ? <ProfileMenu logout={handleLogout} /> :   ( <a onClick={handleLogin} color="white" variant="outlined">Sigin</a>)}
+     
     </>
   )
 }
@@ -134,10 +138,6 @@ function LogingButton() {
 export default function NavMenu() {
   const [isNavOpen, setIsNavOpen] = React.useState(false);
  
-  const toggleIsNavOpen = () => setIsNavOpen((cur) => !cur);
-  
-  const isLogin = false;
-
   React.useEffect(() => {
     window.addEventListener(
       "resize",
@@ -156,7 +156,7 @@ export default function NavMenu() {
          <img src="/src/assets/log-in-page-logo-transparent.png" className="rounded-md" style={{ width: '150px', height: '80px' }} />
         </Typography>
         
-        {isLogin ? <ProfileMenu /> :   <LogingButton/>}
+        <LogingButton/>
       </div>
       
     </Navbar>
