@@ -4,12 +4,14 @@ import os
 
 from datetime import datetime, timedelta
 from flask import Flask, redirect, request, jsonify, session, url_for, render_template
+from flask_cors import CORS
 
 from spotipy import Spotify
 from spotipy.oauth2 import SpotifyOAuth
 from spotipy.cache_handler import FlaskSessionCacheHandler
 
 app = Flask(__name__)
+CORS(app)
 app.config['SECRET_KEY'] = os.urandom(64)
 
 CLIENT_ID = 'b662abba80f941099b7ff7c6a11e23cb'
@@ -20,6 +22,7 @@ AUTH_URL = 'https://accounts.spotify.com/authorize'
 TOKEN_URL = 'https://accounts.spotify.com/api/token'
 API_BASE_URL = 'https://api.spotify.com/v1/'
 SCOPE = 'user-library-read playlist-read-private'
+# SCOPE = "user-library-read user-library-modify"
 
 cache_handler = FlaskSessionCacheHandler(session)
 sp_oauth = SpotifyOAuth(
@@ -32,7 +35,7 @@ sp_oauth = SpotifyOAuth(
 )
 
 sp = Spotify(auth_manager=sp_oauth)
-@app.route('/login')
+@app.route('/login', methods=['POST'])
 def login():
     if not sp_oauth.validate_token(cache_handler.get_cached_token()):
         AUTH_URL = sp_oauth.get_authorize_url()
@@ -40,7 +43,7 @@ def login():
         return redirect(AUTH_URL)
     #return redirect(url_for('get_playlists'))
     #return jsonify({'redirect_url': 'http://localhost:5174/'})
-    return redirect('http://localhost:5173/playlist')
+    return redirect('http://localhost:5174/playlist')
 
 
 @app.route('/callback')
@@ -51,7 +54,7 @@ def callback():
    
 
     
-@app.route('/get_playlists')
+@app.route('/get_playlists', methods=['GET'])
 def get_playlists():
     if not sp_oauth.validate_token(cache_handler.get_cached_token()):
         AUTH_URL = sp_oauth.get_authorize_url()
@@ -79,10 +82,28 @@ def generate_playlists():
     # print(f'Playlist: {playlist['name']}')
     return search_results
 
+@app.route('/save_tracks')
+def get_saved_tracks():
+    all_saved_tracks = []
+    all_playlist_tracks = []
+    # Use current_user_playlists to get all playlists (limit 50 initially)
+    results = sp.current_user_playlists(limit=50)
+    playlists = results["items"]
+
+    # Iterate through playlists and get tracks from each
+    for playlist in playlists:
+        playlist_id = playlist["id"]
+        playlist_tracks = sp.playlist_tracks(playlist_id)
+        tracks = playlist_tracks["items"]
+        all_playlist_tracks.extend(tracks)
+
+    return jsonify(all_playlist_tracks)
+   
+
 @app.route('/logout')
 def logout():
     session.clear()
-    return redirect('http://localhost:5173/:')
+    return redirect('http://localhost:5174/:')
     
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
