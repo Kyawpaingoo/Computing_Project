@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Navbar,
   Typography,
@@ -100,36 +100,52 @@ function ProfileMenu({logout}) {
 } 
  
 function LogingButton() {
+ 
   const [login, setLogin] = useState('false');
-
-  const handleLogin = () =>{
-    fetch('http://localhost:5000/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-    .then(response => {
-      response.ok ? setLogin(true) : setLogin(false);
-    })
-    .catch(error => console.log('Error:', error));
-  }
-
-  const handleLogout = () =>{
-    fetch('http://localhost:5000/logout', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then(response => {
-      response.ok && setLogin(false);
-    })
-    .catch(error => console.log('Error:', error));
+  const [accessToken, setAccessToken] = useState(null);
   
-  }
+    const handleLogin = async () =>{
+      try {
+        const response = await fetch('http://localhost:5000/login', {
+                                    mode:  'cors',
+                                    method: 'POST',
+                                    headers: {
+                                      'Content-Type': 'application/json'
+                                    },
+                                  });
+                                  console.log(response);
+        const data = await response.json();
+        console.log(data);
+        if(data.success){
+          setLogin(true);
+          setAccessToken(data.success.token);
+          window.location.href='/';
+        }
+      }
+      catch(error){
+      console.log(error);
+      }
+    }
+    
+    const handleLogout = async () =>{
+      try {
+          const response = await fetch('http://localhost:5000/logout', {method:'POST'});
+          if(response.ok){
+          localStorage.removeItem('access_token');
+          window.location.href='/';
+          }
+      }
+      catch (error){
+        console.log(error)
+      }
+    }
+
+  
+
+  
   return(
     <>
-      {login ? <ProfileMenu logout={handleLogout} /> :   ( <a onClick={handleLogin} color="white" variant="outlined">Sigin</a>)}
+      {!login ? <ProfileMenu logout={handleLogout} /> :   ( <Button onClick={handleLogin} color="white" variant="outlined">Sigin</Button>)}
      
     </>
   )

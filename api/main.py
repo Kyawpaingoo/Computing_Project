@@ -11,7 +11,7 @@ from spotipy.oauth2 import SpotifyOAuth
 from spotipy.cache_handler import FlaskSessionCacheHandler
 
 app = Flask(__name__)
-CORS(app)
+CORS(app);
 app.config['SECRET_KEY'] = os.urandom(64)
 
 CLIENT_ID = 'b662abba80f941099b7ff7c6a11e23cb'
@@ -35,15 +35,16 @@ sp_oauth = SpotifyOAuth(
 )
 
 sp = Spotify(auth_manager=sp_oauth)
-@app.route('/login', methods=['POST'])
+@app.route('/login')
 def login():
     if not sp_oauth.validate_token(cache_handler.get_cached_token()):
         AUTH_URL = sp_oauth.get_authorize_url()
         session["token_info"] = sp_oauth.get_cached_token()
         return redirect(AUTH_URL)
-    #return redirect(url_for('get_playlists'))
-    #return jsonify({'redirect_url': 'http://localhost:5174/'})
-    return redirect('http://localhost:5174/playlist')
+    else:
+        access_token = sp_oauth.get_cached_token()
+        #return jsonify({'redirect_url': 'http://localhost:5174/'})
+        return jsonify({'success':True, 'access_token': access_token})
 
 
 @app.route('/callback')
@@ -100,10 +101,10 @@ def get_saved_tracks():
     return jsonify(all_playlist_tracks)
    
 
-@app.route('/logout')
+@app.route('/logout',methods=['POST'])
 def logout():
     session.clear()
-    return redirect('http://localhost:5174/:')
+    return jsonify({'success': True})
     
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
